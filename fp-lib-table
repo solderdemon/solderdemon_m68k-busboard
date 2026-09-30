@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "solderdemon_m68k-busboard")(type "KiCad")(uri "${KIPRJMOD}/solderdemon_m68k-busboard.pretty")(options "")(descr "SolderDemon bus board footprints"))
+)
