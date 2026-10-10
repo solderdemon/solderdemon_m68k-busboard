@@ -1,8 +1,10 @@
 # SolderDemon Bus Board (solderdemon_m68k-busboard)
 
-Revision r1 — the first SolderDemon revision of this board.
+Revision r2 — the host board stands in the first slot, the power section sits at the right-hand end.
 
-A SolderDemon 5-slot backplane with a simple 5V-only power section.
+(r1, tagged in git as commit `50e6db7`, had the power section on the left and the host on a ribbon cable.)
+
+A SolderDemon 5-slot backplane with a simple 5V-only power section. The `solderdemon_m68k` host board plugs straight into `BUS1` with its component side facing outwards; `BUS2`–`BUS5` take expansion cards.
 
 Compatible with the rosco_m68k ecosystem; based on the `roscbus-01` bus board by Ross Bamford & Contributors (CERN OHL v1.2).
 
@@ -10,7 +12,7 @@ Compatible with the rosco_m68k ecosystem; based on the `roscbus-01` bus board by
 
 ## Highlights
 
-- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle
+- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle. `BUS1` (labelled `BUS1 HOST`) is the host slot: the 20 mm strip to its left is kept free of tall parts so the host's components can face outwards
 - **Power Inputs:** 5V DC only, from either:
   - USB Type-C receptacle (`J4`, power only, 5.1 kΩ CC pull-downs `R2` / `R3`)
   - DC Barrel Jack (`J3`, center-positive)
@@ -18,7 +20,7 @@ Compatible with the rosco_m68k ecosystem; based on the `roscbus-01` bus board by
 - **Power Switch:** NKK M2021SS1W01 DPST toggle switch (`SW1`) — one pole switches USB `VBUS` (and `J1`), the other switches the barrel jack
 - **Input Protection:** SA5.0A unidirectional TVS diode (`D1`, DO-15 through-hole) across `VCC` / `GND` — clamps over-voltage and conducts on reversed polarity
 - **Filtering & Status:** 470 µF bulk reservoir (`C1`), 100 nF bypass capacitors next to the slots (`C2`–`C7`), PWR GOOD LED (`LED1`)
-- **Form Factor:** 160 × 99 mm 2-layer PCB, all through-hole components except the USB-C receptacle
+- **Form Factor:** 175 × 99 mm 2-layer PCB, all through-hole components except the USB-C receptacle; power connectors and switch on the right-hand end, away from the host
 - **Mounting:** 8× M3 mounting holes (3.2 mm)
 
 ## Pinout
@@ -62,8 +64,9 @@ All five slots are wired 1:1 to the main bus:
 
 ### Connecting the host and the cards
 
-- **Host board.** The `solderdemon_m68k` J3 expansion connector is a vertical 2×32 pin header, the same as the slots here, so the host connects with a **64-way IDC ribbon cable with a socket at both ends** plugged into any slot (BUS5 keeps the other four free). The cable is wired 1:1; keep it short (under about 20 cm) because the bus is unbuffered and has a single GND line. Neither header is keyed: match the cable's pin 1 (red stripe) to the triangle on the slot and to pin 1 on J3, otherwise the bus board's own 5V lands on the CPU data lines.
-- **Cards.** Expansion cards use a right-angle 2×32 socket on the component side of their right edge, pin 1 at the bottom. Plugged in, every card stands with its components facing the power section (towards `SW1`). A card inserted the other way round gets `VCC` on a data line, so check the triangle before powering up.
+- **Host board in `BUS1`.** Fit a **right-angle 2×32 socket on the bottom side** of the `solderdemon_m68k` board in the J3 holes, body overhanging the left edge, instead of the vertical header. The host then stands in `BUS1` with its component side facing outwards (left), all its connectors reachable, pins matched 1:1. The socket must be on the bottom side: on the top side the pin order along the row comes out reversed. The host sits about 2 mm lower than the cards because J3 is 5.45 mm from the board edge; its tallest parts reach roughly the left edge of this board.
+- **Host on a cable.** With the stock vertical header on J3 the host can instead hang off a 64-way IDC ribbon cable with a socket at both ends, plugged into any slot. The cable is wired 1:1; keep it short (under about 20 cm) because the bus is unbuffered and has a single GND line. Neither header is keyed: match the cable's pin 1 (red stripe) to the triangle on the slot and to pin 1 on J3, otherwise the bus board's own 5V lands on the CPU data lines.
+- **Cards.** Expansion cards use a right-angle 2×32 socket on the component side of their right edge, pin 1 at the bottom. Plugged in, every card stands with its components facing left, towards the host slot, so cards look at the back of their left-hand neighbour and the `BUS5` card turns its back to the power section. A card inserted the other way round gets `VCC` on a data line, so check the triangle before powering up.
 - **One power source.** Bus pin 2 (`VCC`) is wired straight to the host's 5V rail through the ribbon; there is no diode or jumper separating the two. Power the system either from the host or from this board, never from both.
 
 ### Power Interfaces & Control
@@ -116,11 +119,11 @@ Machine-readable BOM: [solderdemon_m68k-busboard-bom.csv](solderdemon_m68k-busbo
 - **Gerbers:**
   - Ready-to-order archive: [solderdemon_m68k-busboard_production_gerber.zip](solderdemon_m68k-busboard_production_gerber.zip)
   - Unpacked layers and drill file in [gerber/](gerber/) folder
-- **PCB Specs:** 2-layer board, 160 × 99 mm, 1.6 mm thickness, standard 1 oz copper, HASL / ENIG finish
+- **PCB Specs:** 2-layer board, 175 × 99 mm, 1.6 mm thickness, standard 1 oz copper, HASL / ENIG finish
 - **Design Verification:** [DRC Report](solderdemon_m68k-busboard-drc.rpt) (0 errors, 0 unconnected; the 40 warnings are silkscreen overlaps and clipping, footprints and fields that differ from the KiCad library copies, and the intentionally unconnected USB-C data pads), [ERC Report](solderdemon_m68k-busboard-erc.rpt) (0 errors, 1 library warning)
 
 ## License
 
 - **Hardware:** CERN Open Hardware Licence v1.2 ([LICENCE.hardware.txt](LICENCE.hardware.txt)).
-- **This revision (SolderDemon r1):** Copyright © 2026 SolderDemon.
+- **This revision (SolderDemon r2):** Copyright © 2026 SolderDemon.
 - **Original design:** Copyright © 2020 Ross Bamford & Contributors.
