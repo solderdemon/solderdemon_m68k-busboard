@@ -10,7 +10,7 @@ Compatible with the rosco_m68k ecosystem; based on the `roscbus-01` bus board by
 
 ## Highlights
 
-- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus
+- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle
 - **Power Inputs:** 5V DC only, from either:
   - USB Type-C receptacle (`J4`, power only, 5.1 kΩ CC pull-downs `R2` / `R3`)
   - DC Barrel Jack (`J3`, center-positive)
@@ -59,6 +59,12 @@ All five slots are wired 1:1 to the main bus:
 | **59** | **R/W** | Read / Write | **60** | **D4** | Data bus bit 4 |
 | **61** | **D0** | Data bus bit 0 | **62** | **D3** | Data bus bit 3 |
 | **63** | **D1** | Data bus bit 1 | **64** | **D2** | Data bus bit 2 |
+
+### Connecting the host and the cards
+
+- **Host board.** The `solderdemon_m68k` J3 expansion connector is a vertical 2×32 pin header, the same as the slots here, so the host connects with a **64-way IDC ribbon cable with a socket at both ends** plugged into any slot (BUS5 keeps the other four free). The cable is wired 1:1; keep it short (under about 20 cm) because the bus is unbuffered and has a single GND line. Neither header is keyed: match the cable's pin 1 (red stripe) to the triangle on the slot and to pin 1 on J3, otherwise the bus board's own 5V lands on the CPU data lines.
+- **Cards.** Expansion cards use a right-angle 2×32 socket on the component side of their right edge, pin 1 at the bottom. Plugged in, every card stands with its components facing the power section (towards `SW1`). A card inserted the other way round gets `VCC` on a data line, so check the triangle before powering up.
+- **One power source.** Bus pin 2 (`VCC`) is wired straight to the host's 5V rail through the ribbon; there is no diode or jumper separating the two. Power the system either from the host or from this board, never from both.
 
 ### Power Interfaces & Control
 
@@ -111,7 +117,7 @@ Machine-readable BOM: [solderdemon_m68k-busboard-bom.csv](solderdemon_m68k-busbo
   - Ready-to-order archive: [solderdemon_m68k-busboard_production_gerber.zip](solderdemon_m68k-busboard_production_gerber.zip)
   - Unpacked layers and drill file in [gerber/](gerber/) folder
 - **PCB Specs:** 2-layer board, 160 × 99 mm, 1.6 mm thickness, standard 1 oz copper, HASL / ENIG finish
-- **Design Verification:** [DRC Report](solderdemon_m68k-busboard-drc.rpt) (0 errors, 0 unconnected; remaining warnings are silkscreen overlaps and footprints that differ from current KiCad library copies), [ERC Report](solderdemon_m68k-busboard-erc.rpt) (0 errors, 1 library warning)
+- **Design Verification:** [DRC Report](solderdemon_m68k-busboard-drc.rpt) (0 errors, 0 unconnected; the 40 warnings are silkscreen overlaps and clipping, footprints and fields that differ from the KiCad library copies, and the intentionally unconnected USB-C data pads), [ERC Report](solderdemon_m68k-busboard-erc.rpt) (0 errors, 1 library warning)
 
 ## License
 

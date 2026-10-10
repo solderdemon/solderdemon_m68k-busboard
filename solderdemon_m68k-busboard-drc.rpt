@@ -1,8 +1,20 @@
 ** Drc report for solderdemon_m68k-busboard.kicad_pcb **
-** Created on 2026-09-30T12:55:14 **
+** Created on 2026-10-10T21:38:21 **
 ** Report includes: Errors, Warnings **
 
-** Found 37 DRC violations **
+** Found 40 DRC violations **
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(68.5850 mm, 129.2200 mm): Segment on Edge.Cuts
+    @(68.5850 mm, 46.1800 mm): Segment of J3 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(68.5850 mm, 129.2200 mm): Segment on Edge.Cuts
+    @(68.5850 mm, 55.3800 mm): Segment of J3 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(68.5850 mm, 129.2200 mm): Segment on Edge.Cuts
+    @(77.0850 mm, 55.3800 mm): Segment of J3 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(68.5850 mm, 129.2200 mm): Segment on Edge.Cuts
@@ -61,26 +73,6 @@
     @(132.7870 mm, 124.6670 mm): Segment of BUS2-1 on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(99.1320 mm, 44.0220 mm): Segment of BUS1-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(102.9420 mm, 44.0220 mm): Segment of BUS1-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(128.3420 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(132.1520 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(128.3420 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
     @(215.9350 mm, 125.2900 mm): Segment on F.Silkscreen
     @(157.5520 mm, 125.3020 mm): Segment of BUS3-1 on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
@@ -105,10 +97,6 @@
     @(191.2070 mm, 124.6670 mm): Segment of BUS4-1 on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(215.9720 mm, 44.0220 mm): Segment of BUS5-1 on F.Silkscreen
-    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
     @(157.5520 mm, 44.0220 mm): Segment of BUS3-1 on F.Silkscreen
     @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
@@ -130,6 +118,30 @@
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
     @(190.5720 mm, 44.0220 mm): Segment of BUS4-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(215.9720 mm, 44.0220 mm): Segment of BUS5-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(128.3420 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(132.1520 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(99.1320 mm, 44.0220 mm): Segment of BUS1-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(102.9420 mm, 44.0220 mm): Segment of BUS1-1 on F.Silkscreen
+    @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(128.3420 mm, 44.0220 mm): Segment of BUS2-1 on F.Silkscreen
     @(102.8750 mm, 44.0000 mm): Segment on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
@@ -236,7 +248,7 @@
     @(72.4100 mm, 130.5000 mm): Footprint H8
 [footprint_symbol_field_mismatch]: Field 'Datasheet' differs (PCB: '', Schematic: '~')
     Local override; warning
-    @(85.2850 mm, 50.7800 mm): Footprint J3
+    @(82.2850 mm, 50.7800 mm): Footprint J3
 [footprint_symbol_field_mismatch]: Field 'Datasheet' differs (PCB: '', Schematic: '~')
     Local override; warning
     @(72.4850 mm, 63.5000 mm): Footprint J4
