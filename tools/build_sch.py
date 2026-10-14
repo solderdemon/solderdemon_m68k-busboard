@@ -22,7 +22,7 @@ NAME = 'solderdemon_m68k-busboard'
 REV, DATE = 'r1', '2026-10-14'
 
 # Bus pin -> net, as in r2 (odd pins: address side, even pins: control/data side).
-BUS = ['A1', 'VCC', 'A2', 'CPUCLK', 'A3', 'GND', 'A4', 'VPA', 'A5', 'E', 'A6', 'VMA', 'A7', 'MFPIEO',
+BUS = ['A1', 'VCC', 'A2', 'CPUCLK', 'A3', 'GND', 'A4', 'VPA', 'A5', 'E', 'A6', 'VMA', 'A7', 'IRQ3',
        'A8', 'IOSEL', 'A9', 'EXPSEL', 'A10', 'CPUFC0', 'A11', 'CPUFC1', 'A12', 'CPUFC2', 'A13', 'IPL0',
        'A14', 'IPL1', 'A15', 'IPL2', 'A16', 'LDS', 'A17', 'UDS', 'A18', 'RESET', 'A19', 'D15', 'A20', 'D14',
        'A21', 'D13', 'A22', 'D12', 'A23', 'D11', 'AS', 'D10', 'BERR', 'D9', 'BG', 'D8', 'BGACK', 'D7',

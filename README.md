@@ -37,7 +37,7 @@ All five slots are wired 1:1 to the main bus:
 | **7** | **A4** | Address bus bit 4 | **8** | **VPA** | Valid Peripheral Address |
 | **9** | **A5** | Address bus bit 5 | **10** | **E** | 6800-style E clock |
 | **11** | **A6** | Address bus bit 6 | **12** | **VMA** | Valid Memory Address |
-| **13** | **A7** | Address bus bit 7 | **14** | **MFPIEO** | MFP interrupt enable out (daisy chain) |
+| **13** | **A7** | Address bus bit 7 | **14** | **IRQ3** | Active-low interrupt input on the SolderDemon m68k host |
 | **15** | **A8** | Address bus bit 8 | **16** | **IOSEL** | I/O select |
 | **17** | **A9** | Address bus bit 9 | **18** | **EXPSEL** | Expansion select |
 | **19** | **A10** | Address bus bit 10 | **20** | **FC0** | CPU function code 0 |

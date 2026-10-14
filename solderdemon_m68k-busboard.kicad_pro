@@ -800,7 +800,7 @@
       },
       {
         "netclass": "Default",
-        "pattern": "MFPIEO"
+        "pattern": "IRQ3"
       },
       {
         "netclass": "Default",

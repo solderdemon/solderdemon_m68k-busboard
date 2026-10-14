@@ -21,7 +21,8 @@ board:
 4. PWR LINK: pin 2 of BUS1 is VCC_HOST. JP1 is the 6502 board's through-hole 1x2 header, lying
    across the HOST/SLOT 1 half-pitch line in pin row LINK_ROW, under C2. It cannot stand: between
    pin rows the bus runs two tracks, which do not fit between pads 2.54 mm apart. C2's pad 1 feeds
-   it down the left; its VCC side runs up the right and over BUS2's pin 1 into BUS2's pin 2.
+   it straight down the left; its VCC side runs right, rises midway between C2 and BUS2 and crosses
+   over BUS2's pin 1 into pin 2. Rising right beside C2 would cut C2's GND pad off the pour.
    Through-hole pads between the slots push the B.Cu bus tracks beside them aside (detour()).
 5. M3 holes are GND pads 5.08 mm in from the edges, as on the 6502 board. GND pours: F.Cu over
    the whole board, B.Cu in the power corner (between the slots the bus leaves it no room).
@@ -51,6 +52,7 @@ GONE_NETS = {'/DC_IN', '/USB_CC1', '/USB_CC2', '/VBUS_USB', 'Net-(LED1-Pad2)'}
 BASE_COMMIT = '3a0c432'             # r2 routing is the immutable input to this generator
 SIZE = (185.0, 99.0)                # outline (r2: 175.075 x 99.03); C6 keeps 5 mm from C1's can
 LINK_ROW = 5                        # JP1's pin row; rows 1-3 are C2's
+LINK_OVER = 2.54                    # JP1's VCC run crosses over BUS2's pin 1 this far above the pin-1 row
 HOLE_INSET = 5.08                   # M3 pads this far from the edges, as on the 6502 board
 HOLE_GAPS = (1, 3)                  # middle holes on the SLOT 1/2 and SLOT 3/4 half-pitch lines
 FEED = 0.5                          # decoupler feeds, as on the 6502 board
@@ -273,15 +275,16 @@ def main():
     for i in range(5):
         track('VCC_HOST' if i == 0 else 'VCC', pin(f'BUS{i + 1}', '2'), pin(f'C{i + 2}', '1'))
 
-    # PWR LINK: C2's pad 1 runs down its left side into JP1's pad 1; JP1's pad 2 runs up the right
-    # side and over BUS2's pin 1 into pin 2.
+    # PWR LINK: C2's pad 1 drops straight down its left side into JP1's pad 1, in line with it.
+    # JP1's pad 2 runs along the jumper's row to the middle of the gap between C2 and BUS2, up it,
+    # over BUS2's pin 1 and into pin 2. The rise keeps clear of C2, so C2's pad 2 stays open to the
+    # pour on its right (a rise right beside C2 would cut it off).
     c2, j1, j2 = pin('C2', '1'), pin('JP1', '1'), pin('JP1', '2')
-    xl = c2[0] - 2.54
-    track('VCC_HOST', c2, (xl, c2[1] + 2.54), (xl, j1[1] - (j1[0] - xl)), j1, width=0.6)
+    track('VCC_HOST', c2, (j1[0], c2[1] + (c2[0] - j1[0])), j1)
     bus2_1, bus2_2 = pin('BUS2', '1'), pin('BUS2', '2')
-    x, y = bus2_1[0] - 2.85, bus2_1[1] - 2.0                   # left of BUS2's pin 1 / over it
+    x, y = (c2[0] + bus2_1[0]) / 2, bus2_2[1] - LINK_OVER
     track('VCC', j2, (x - 1.0, j2[1]), (x, j2[1] - 1.0), (x, y + 1.0), (x + 1.0, y),
-          (bus2_2[0] - 1.0, y), (bus2_2[0], y + 1.0), bus2_2, width=0.6)
+          (bus2_2[0] - 1.0, y), (bus2_2[0], y + 1.0), bus2_2)
 
     # B.Cu bus tracks beside the new through-hole pads step aside with 45 degree jogs.
     for f in [b.FindFootprintByReference(r) for r in ('C2', 'C3', 'C4', 'C5', 'JP1')]:
