@@ -1,12 +1,9 @@
-ERC report (2026-10-10T23:25:02, Encoding UTF8)
+ERC report (2026-10-14T11:36:51, Encoding UTF8)
 Report includes: Errors, Warnings
 
 ***** Sheet /
-[lib_symbol_issues]: Symbol 'CP' not found in symbol library 'Device'
-    ; warning
-    @(210.82 mm, 154.94 mm): Symbol C1 [CP]
 
- ** ERC messages: 1  Errors 0  Warnings 1
+ ** ERC messages: 0  Errors 0  Warnings 0
 
  ** Ignored checks:
     - Global label only appears once in the schematic

@@ -1,8 +1,8 @@
 # SolderDemon Bus Board (solderdemon_m68k-busboard)
 
-Revision r2 — the host board stands in the first slot, the power section sits at the right-hand end.
+Standardized revision r1 — the power circuit and protection match the SolderDemon 6502 busboard; both busboards share one silkscreen layout.
 
-(r1, tagged in git as commit `50e6db7`, had the power section on the left and the host on a ribbon cable.)
+The routed bus traces come from the earlier board at git commit `3a0c432`, unchanged except for small local detours around the through-hole pads between the slots; the standardized layout resets the release marking to r1.
 
 A SolderDemon 5-slot backplane with a simple 5V-only power section. The `solderdemon_m68k` host board plugs straight into `BUS1` with its component side facing outwards; `BUS2`–`BUS5` take expansion cards.
 
@@ -12,16 +12,18 @@ Compatible with the rosco_m68k ecosystem; based on the `roscbus-01` bus board by
 
 ## Highlights
 
-- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle. `BUS1` (labelled `BUS1 HOST`) is the host slot: the 20 mm strip to its left is kept free of tall parts so the host's components can face outwards
-- **Power Inputs:** 5V DC only, from either:
-  - USB Type-C receptacle (`J4`, power only, 5.1 kΩ CC pull-downs `R2` / `R3`)
-  - DC Barrel Jack (`J3`, center-positive)
-  - 2-pin 2.54 mm header (`J1`, below the USB-C, wired in parallel with USB `VBUS`)
-- **Power Switch:** NKK M2021SS1W01 DPST toggle switch (`SW1`) — one pole switches USB `VBUS` (and `J1`), the other switches the barrel jack
-- **Input Protection:** SA5.0A unidirectional TVS diode (`D1`, DO-15 through-hole) across `VCC` / `GND` — clamps over-voltage and conducts on reversed polarity
-- **Filtering & Status:** 470 µF bulk reservoir (`C1`), 100 nF bypass capacitors next to the slots (`C2`–`C7`), PWR GOOD LED (`LED1`)
-- **Form Factor:** 175 × 99 mm 2-layer PCB, all through-hole components except the USB-C receptacle; power connectors and switch on the right-hand end, away from the host
-- **Mounting:** 8× M3 mounting holes (3.2 mm)
+- **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle. `BUS1` (labelled `HOST`; the others `SLOT 1`–`SLOT 4`) is the host slot: the 20 mm strip to its left is kept free of tall parts so the host's components can face outwards
+- **Power Inputs:** 5V DC only, from one of, down the right-hand edge:
+  - USB Type-C receptacle (`J3`, power only, 5.1 kΩ CC pull-downs `R2` / `R3`)
+  - DC Barrel Jack (`J1`, center-positive)
+  - 2-pin 2.54 mm terminal (`J2`, under the jack)
+- **Source Selection:** one jumper cap on the 2×3 header `JP2` (`SOURCE`) picks the input — the `USB`, `DC` or `TERM` row. Only the selected input reaches the switch, so two adapters are never tied together. No diodes, no voltage drop
+- **Power Switch:** NKK M2021SS1W01 DPST toggle (`SW1`, both poles in parallel) between the selected input and `VCC`
+- **Input Protection:** 1.5KE6.8A unidirectional TVS (`D1`, DO-201AE) across `VCC` / `GND`: 5.8 V standoff, above the USB tolerance of 5.25 V, so it does not leak on a good supply; it clamps over-voltage and conducts on reversed polarity
+- **Host Power Link:** through-hole 1×2 jumper header `JP1` (`PWR LINK`), lying across the line midway between `HOST` and `SLOT 1`, under `C2`. It joins the host slot's pin 2 (`VCC_HOST`) to the bus `VCC`. Remove the jumper to power the host from its own `J5` while this board powers the cards
+- **Filtering & Status:** 470 µF bulk reservoir (`C1`, upright) at the top right with `LED1` below it, as on the 6502 busboard. One 100 nF capacitor per slot stands vertically exactly halfway between two slot centres (`C2`–`C5`), its upper pad level with the slots' pin 1; `C6` continues the same 29.21 mm rhythm half a pitch past `SLOT 4`. Each is fed straight along the pin-1 row from its slot's pin 2; `C2` is on `VCC_HOST`
+- **Form Factor:** 185 × 99 mm 2-layer PCB, through-hole components except the USB-C receptacle; power connectors and switch on the right-hand end, away from the host
+- **Mounting:** 8× M3 mounting holes (3.2 mm) with grounded pads, 5.08 mm in from the edges as on the 6502 busboard; the four middle holes sit on the same half-pitch lines as the capacitors, above `C3` and `C5` and below the slots
 
 ## Pinout
 
@@ -67,22 +69,24 @@ All five slots are wired 1:1 to the main bus:
 - **Host board in `BUS1`.** Fit a **right-angle 2×32 socket on the bottom side** of the `solderdemon_m68k` board in the J3 holes, body overhanging the left edge, instead of the vertical header. The host then stands in `BUS1` with its component side facing outwards (left), all its connectors reachable, pins matched 1:1. The socket must be on the bottom side: on the top side the pin order along the row comes out reversed. The host sits about 2 mm lower than the cards because J3 is 5.45 mm from the board edge; its tallest parts reach roughly the left edge of this board.
 - **Host on a cable.** With the stock vertical header on J3 the host can instead hang off a 64-way IDC ribbon cable with a socket at both ends, plugged into any slot. The cable is wired 1:1; keep it short (under about 20 cm) because the bus is unbuffered and has a single GND line. Neither header is keyed: match the cable's pin 1 (red stripe) to the triangle on the slot and to pin 1 on J3, otherwise the bus board's own 5V lands on the CPU data lines.
 - **Cards.** Expansion cards use a right-angle 2×32 socket on the component side of their right edge, pin 1 at the bottom. Plugged in, every card stands with its components facing left, towards the host slot, so cards look at the back of their left-hand neighbour and the `BUS5` card turns its back to the power section. A card inserted the other way round gets `VCC` on a data line, so check the triangle before powering up.
-- **One power source.** Bus pin 2 (`VCC`) is wired straight to the host's 5V rail through the ribbon; there is no diode or jumper separating the two. Power the system either from the host or from this board, never from both.
+- **One power source.** With `JP1` fitted, the host's 5V rail is the bus `VCC`: power the system from this board only. To power the host from its own `J5` (for example during bring-up), take `JP1` off — the cards still run from this board, the host from its own supply.
 
 ### Power Interfaces & Control
 
 | Designator | Label | Type / Footprint | Description |
 |:---|:---|:---|:---|
-| **J1** | 5V IN | Pin header 1×2, 2.54 mm | 5V input for a power cable, pin 1 = +5V (`VBUS_USB`), pin 2 = GND |
-| **J3** | Center Positive | Barrel Jack, Würth 6941xx301002 | 5V DC input (center-positive) |
-| **J4** | USB-C | HRO TYPE-C-31-M-12, 16P | 5V USB power input, CC1/CC2 pulled down with 5.1 kΩ |
-| **SW1** | POWER | NKK M2021SS1W01, DPST toggle | Main power ON / OFF, switches both inputs |
-| **D1** | — | SA5.0A, DO-15 (THT) | TVS protection diode across `VCC` / `GND` |
-| **LED1** | PWR GOOD | LED 5 mm | `VCC` present indicator |
+| **J3** | USB-C 5V | GCT USB4105-xx-A, 16P | 5V USB power input, CC1/CC2 pulled down with 5.1 kΩ |
+| **J1** | DC 5V ONLY | Barrel jack 5.5 / 2.1 mm | 5V DC input (center-positive, polarity symbol on the silkscreen) |
+| **J2** | GND / +5V | Pin header 1×2, 2.54 mm | 5V input for a power cable, pin 1 = +5V (`VIN_TERM`), pin 2 = GND |
+| **JP2** | SOURCE | Pin header 2×3, 2.54 mm, one jumper cap | Source select: odd pins 1 terminal, 3 DC jack, 5 USB-C; even pins the common input |
+| **SW1** | POWER | NKK M2021SS1W01, DPST toggle | Main power ON / OFF, both poles in parallel |
+| **D1** | — | 1.5KE6.8A, DO-201AE (THT) | TVS protection diode across `VCC` / `GND` |
+| **JP1** | PWR LINK | Pin header 1×2, 2.54 mm, jumper cap | Links the host slot's `VCC_HOST` to `VCC` (fitted by default) |
+| **LED1** | — | LED 5 mm | PWR GOOD: `VCC` present |
 
-> **5V only.** There is no voltage regulator on this board. Supply regulated 5V through USB-C, the `J1` header or the barrel jack. If more than ~6V or reversed polarity is applied, `D1` starts conducting and shorts the input. There is no fuse, so this relies on the supply's own over-current protection — a supply without it can destroy `D1`.
+> **5V only.** There is no voltage regulator on this board. Supply regulated 5V through USB-C, the `J2` terminal or the barrel jack. If more than ~6.5V or reversed polarity is applied, `D1` starts conducting and shorts the input. There is no fuse, so this relies on the supply's own over-current protection — a supply without it can destroy `D1`.
 
-> **Several inputs.** With `SW1` ON, all inputs are connected to `VCC`. `J1` is wired directly to USB `VBUS`, so it must never be used while USB-C is plugged in. Use one power source at a time.
+> **One input at a time, by design.** `JP2` connects exactly one input to the switch; the others stay open even when plugged in.
 
 ## Board Views
 
@@ -94,18 +98,20 @@ All five slots are wired 1:1 to the main bus:
 
 | Reference | Value | Package / Footprint | Notes |
 |:---|:---|:---|:---|
-| **BUS1-1–BUS5-1** | Conn_02x32 | Pin header 2×32, 2.54 mm, vertical | Bus slots |
-| **J1** | 5V IN | Pin header 1×2, 2.54 mm, vertical | 5V power input header |
-| **J3** | Jack-DC | Barrel jack, Würth 6941xx301002 | 5V DC input |
-| **J4** | USB-C 16P | HRO TYPE-C-31-M-12 | USB Type-C power receptacle |
+| **BUS1–BUS5** | Conn_02x32 | Pin header 2×32, 2.54 mm, vertical | Bus slots |
+| **J1** | Jack-DC | Barrel jack 5.5 / 2.1 mm, horizontal | 5V DC input |
+| **J2** | 5V IN | Pin header 1×2, 2.54 mm, vertical | 5V terminal input |
+| **J3** | USB-C 16P | GCT USB4105-xx-A, top mount | USB Type-C power receptacle |
+| **JP1** | PWR LINK | Pin header 1×2, 2.54 mm + jumper cap | Host power link |
+| **JP2** | SOURCE | Pin header 2×3, 2.54 mm + jumper cap | Source select |
 | **SW1** | M2021SS1W01 | NKK M-series DPST ON-OFF toggle switch | Main power switch |
-| **D1** | SA5.0A | DO-15, Axial P10.16 mm (THT) | Unidirectional TVS diode |
+| **D1** | 1.5KE6.8A | DO-201AE, Axial P15.24 mm (THT) | Unidirectional TVS diode |
 | **LED1** | LED 5 mm | Radial D5.0 mm (THT) | PWR GOOD indicator |
-| **C1** | 470 µF | Radial electrolytic, P3.5 mm, D10 mm | Bulk reservoir capacitor |
-| **C2–C7** | 100 nF | Rectangular film/ceramic, P5.00 mm | Bypass capacitors |
+| **C1** | 470 µF | Radial electrolytic, D6.3 mm, P2.5 mm, upright | Bulk reservoir capacitor |
+| **C2–C6** | 100 nF | Radial ceramic, 5.08 mm lead pitch | One per slot (`C2`: host, on `VCC_HOST`) |
 | **R1** | 1 kΩ | Axial DIN0207, P10.16 mm | LED1 current-limiting resistor |
 | **R2, R3** | 5.1 kΩ | Axial DIN0207, P10.16 mm | USB-C CC1 / CC2 pull-down resistors |
-| **H1–H8** | Mounting Hole | 3.2 mm M3 | Mounting holes |
+| **H1–H8** | Mounting Hole | 3.2 mm M3, GND pad | Mounting holes |
 | **LOGO1** | SolderDemon logo | Silkscreen only | Board-only graphic, not in the BOM |
 
 Machine-readable BOM: [solderdemon_m68k-busboard-bom.csv](solderdemon_m68k-busboard-bom.csv).
@@ -113,17 +119,18 @@ Machine-readable BOM: [solderdemon_m68k-busboard-bom.csv](solderdemon_m68k-busbo
 ## Manufacturing & Hardware Files
 
 - **KiCad Project (KiCad 10):** `solderdemon_m68k-busboard.kicad_pro`, `solderdemon_m68k-busboard.kicad_sch`, `solderdemon_m68k-busboard.kicad_pcb`
+- **How r1 is made:** `tools/build_sch.py` generates the schematic and BOM; `tools/standard_pcb.py` rebuilds from the routed bus at git `3a0c432`, brings over the 6502 power circuit and applies the revised placement and routing; `../tools/brand/apply_identity.py solderdemon_m68k-busboard` draws the shared labels and identity
 - **Footprint Library:** `solderdemon_m68k-busboard.pretty/` (bus header, capacitor, resistor and power switch footprints, SolderDemon logo)
-- **Logo:** [logo.png](logo.png) is the source; `python tools/make_logo.py [height_mm]` regenerates `SolderDemon_Logo.kicad_mod` from it (run with KiCad's Python, it needs Pillow)
+- **Logo:** the shared SolderDemon logo from `../tools/brand/` (library `SolderDemonBrand`)
 - **Schematic PDF:** [solderdemon_m68k-busboard.pdf](solderdemon_m68k-busboard.pdf)
-- **Gerbers:**
+- **Gerbers (standardized r1):**
   - Ready-to-order archive: [solderdemon_m68k-busboard_production_gerber.zip](solderdemon_m68k-busboard_production_gerber.zip)
   - Unpacked layers and drill file in [gerber/](gerber/) folder
-- **PCB Specs:** 2-layer board, 175 × 99 mm, 1.6 mm thickness, standard 1 oz copper, HASL / ENIG finish
-- **Design Verification:** [DRC Report](solderdemon_m68k-busboard-drc.rpt) (0 errors, 0 unconnected; the 40 warnings are silkscreen overlaps and clipping, footprints and fields that differ from the KiCad library copies, and the intentionally unconnected USB-C data pads), [ERC Report](solderdemon_m68k-busboard-erc.rpt) (0 errors, 1 library warning)
+- **PCB Specs:** 2-layer board, 185 × 99 mm, 1.6 mm thickness, standard 1 oz copper, HASL / ENIG finish
+- **Design Verification:** [DRC Report](solderdemon_m68k-busboard-drc.rpt) (0 violations, 0 unconnected, 0 schematic parity issues), [ERC Report](solderdemon_m68k-busboard-erc.rpt) (0 violations)
 
 ## License
 
 - **Hardware:** CERN Open Hardware Licence v1.2 ([LICENCE.hardware.txt](LICENCE.hardware.txt)).
-- **This revision (SolderDemon r2):** Copyright © 2026 SolderDemon.
+- **This revision (SolderDemon r1):** Copyright © 2026 SolderDemon.
 - **Original design:** Copyright © 2020 Ross Bamford & Contributors.
