@@ -11,6 +11,8 @@ import re, uuid, json, csv, copy
 
 ROOT = Path(__file__).resolve().parents[1]
 LIB = Path('C:/Program Files/KiCad/10.0/share/kicad')
+if not LIB.exists():
+    LIB = Path('/usr/share/kicad')
 
 def q(s): return json.dumps(str(s), ensure_ascii=False)
 
@@ -122,7 +124,7 @@ class Design:
         return nets
     def write(self, outdir, fp_libs):
         if any(p['fp'].startswith('SolderDemonCaps:') for p in self.parts):
-            fp_libs = [*fp_libs, ('SolderDemonCaps', '${KIPRJMOD}/../tools/capacitors/SolderDemonCaps.pretty')]
+            fp_libs = [*fp_libs, ('SolderDemonCaps', '${KIPRJMOD}/../../tools/capacitors/SolderDemonCaps.pretty')]
         out = Path(outdir); out.mkdir(parents=True, exist_ok=True)
         els = []; stubs = []
         for p in self.parts:

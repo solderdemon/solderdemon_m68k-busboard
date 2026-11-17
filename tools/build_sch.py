@@ -4,9 +4,9 @@ The bus is unchanged from r2: five 2x32 slots, every pin on the same net in ever
 pin 2 of BUS1 (the host), which is VCC_HOST and joins VCC through the PWR LINK jumper JP1.
 
 The power section is the 6502 busboard's, part for part and net for net:
-    J3 USB-C, J1 DC jack, J2 terminal -> JP2 SOURCE (one jumper cap picks one input) -> VIN_DC
+    J1 DC jack, J2 terminal -> JP2 SOURCE (one jumper cap picks one input) -> VIN_DC
     -> SW1 POWER (DPST, poles in parallel) -> VCC; D1 1.5KE6.8A TVS across VCC; C1 470 uF;
-    LED1 PWR GOOD with R1; R2/R3 the USB-C CC pull-downs; one 100 nF per slot (C2 on VCC_HOST).
+    LED1 PWR GOOD with R1; one 100 nF per slot (C2 on VCC_HOST).
 The 6502 board's /RESET pull-up and capacitor belong to the 6502 bus and have no counterpart.
 
     "C:/Program Files/KiCad/10.0/bin/python.exe" tools/build_sch.py      (then tools/standard_pcb.py)
@@ -38,29 +38,22 @@ for i in range(5):
     d.add(f'BUS{i + 1}', conn, 'Conn_02x32_Odd_Even', nets, (60 + 90 * i, 70))
 
 C = d.standard('Device', 'C', 'SolderDemonCaps:C_Radial_5.08mm')
-CP = d.standard('Device', 'C_Polarized', 'Capacitor_THT:CP_Radial_D6.3mm_P2.50mm')
+CP = d.standard('Device', 'C_Polarized', 'Capacitor_THT:CP_Radial_D10.0mm_P3.50mm')
 R = d.standard('Device', 'R', 'Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal')
 LED = d.standard('Device', 'LED', 'LED_THT:LED_D5.0mm')
 TVS = d.standard('Diode', '1.5KExxA', 'Diode_THT:D_DO-201AE_P15.24mm_Horizontal')
 SW = d.standard('Switch', 'SW_DPST', f'{NAME}:NKK-M2021SS1W01')
 JACK = d.standard('Connector', 'Jack-DC', 'Connector_BarrelJack:BarrelJack_Horizontal')
 TERM = d.standard('Connector', 'Conn_01x02_Pin', 'Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical')
-USB = d.standard('Connector', 'USB_C_Receptacle_USB2.0_16P',
-                 'Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal')
 SRC = d.standard('Connector_Generic', 'Conn_02x03_Odd_Even', 'Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical')
 LINK = d.standard('Jumper', 'Jumper_2_Open',
                   'Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical')
 HOLE = d.standard('Mechanical', 'MountingHole_Pad', 'MountingHole:MountingHole_3.2mm_M3_Pad')
 
 Y = 220
-d.add('J3', USB, 'USB-C 5V', {'A1': 'GND', 'A12': 'GND', 'B1': 'GND', 'B12': 'GND', 'SH': 'GND',
-                              'A4': 'VBUS', 'A9': 'VBUS', 'B4': 'VBUS', 'B9': 'VBUS', 'A5': 'CC1', 'B5': 'CC2',
-                              'A6': None, 'A7': None, 'B6': None, 'B7': None, 'A8': None, 'B8': None}, (60, Y))
-d.add('R2', R, '5.1k', {1: 'CC1', 2: 'GND'}, (120, Y - 20))
-d.add('R3', R, '5.1k', {1: 'CC2', 2: 'GND'}, (120, Y))
 d.add('J1', JACK, 'Jack-DC', {1: 'VIN_JACK', 2: 'GND'}, (120, Y + 30))
 d.add('J2', TERM, '5V IN', {1: 'VIN_TERM', 2: 'GND'}, (160, Y + 30))
-d.add('JP2', SRC, 'SOURCE', {1: 'VIN_TERM', 2: 'VIN_DC', 3: 'VIN_JACK', 4: 'VIN_DC', 5: 'VBUS', 6: 'VIN_DC'}, (200, Y))
+d.add('JP2', SRC, 'SOURCE', {1: 'VIN_TERM', 2: 'VIN_DC', 3: 'VIN_JACK', 4: 'VIN_DC', 5: None, 6: 'VIN_DC'}, (200, Y))
 d.add('SW1', SW, 'POWER', {1: 'VIN_DC', 2: 'VCC', 3: 'VIN_DC', 4: 'VCC'}, (250, Y))
 d.add('D1', TVS, '1.5KE6.8A', {1: 'VCC', 2: 'GND'}, (300, Y))
 d.add('C1', CP, '470uF', {1: 'VCC', 2: 'GND'}, (330, Y))
@@ -74,8 +67,8 @@ for i in range(8):
 
 with tempfile.TemporaryDirectory() as tmp:
     parts, nets = d.write(tmp, [])
-    shutil.copy(Path(tmp) / f'{NAME}.kicad_sch', ROOT / f'{NAME}.kicad_sch')
-subprocess.run(['C:/Program Files/KiCad/10.0/bin/kicad-cli.exe', 'sch', 'export', 'bom',
-                '-o', str(ROOT / f'{NAME}-bom.csv'), str(ROOT / f'{NAME}.kicad_sch')],
+    shutil.copy(Path(tmp) / f'{NAME}.kicad_sch', ROOT / 'design' / f'{NAME}.kicad_sch')
+subprocess.run([shutil.which('kicad-cli') or 'C:/Program Files/KiCad/10.0/bin/kicad-cli.exe', 'sch', 'export', 'bom',
+                '-o', str(ROOT / 'design' / f'{NAME}-bom.csv'), str(ROOT / 'design' / f'{NAME}.kicad_sch')],
                check=True)
 print(f'{NAME}.kicad_sch: {parts} parts, {nets} nets')

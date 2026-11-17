@@ -37,3 +37,13 @@ Desktop.ini
 
 # Python
 __pycache__/
+
+# Local build products
+/code/build/*
+!/code/build/README.md
+
+# Local archives and generated work products
+/production/
+/*-backups/
+/.history/
+/routing-swarm/

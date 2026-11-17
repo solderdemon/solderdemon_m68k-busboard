@@ -36,14 +36,14 @@ import pcbnew as pcb
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = 'solderdemon_m68k-busboard'
-BOARD = ROOT / f'{NAME}.kicad_pcb'
+BOARD = ROOT / 'design' / f'{NAME}.kicad_pcb'
 SOURCE = ROOT.parent / 'solderdemon_6502-busboard' / 'solderdemon_6502-busboard.kicad_pcb'
 CLI = 'C:/Program Files/KiCad/10.0/bin/kicad-cli.exe'
 STOCK = Path('C:/Program Files/KiCad/10.0/share/kicad/footprints')
 
 CORNER_X = 104.0                     # 6502 board: everything right of this is the power corner
-REF = {'C1': 'C1', 'LED1': 'LED1', 'R1': 'R1', 'R3': 'R2', 'R4': 'R3', 'J1': 'J1', 'J2': 'J2',
-       'J3': 'J3', 'JP2': 'JP2', 'SW1': 'SW1', 'D1': 'D1'}          # 6502 reference -> m68k
+REF = {'C1': 'C1', 'LED1': 'LED1', 'R1': 'R1', 'J1': 'J1', 'J2': 'J2',
+       'JP2': 'JP2', 'SW1': 'SW1', 'D1': 'D1'}          # 6502 reference -> m68k
 NET = {'Net-(J3-CC1)': 'CC1', 'Net-(J3-CC2)': 'CC2', 'Net-(LED1-K)': 'LED_K'}
 
 GONE = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'D1', 'J1', 'J3', 'J4', 'LED1', 'R1', 'R2', 'R3', 'SW1'] + \
@@ -56,6 +56,7 @@ LINK_OVER = 2.54                    # JP1's VCC run crosses over BUS2's pin 1 th
 HOLE_INSET = 5.08                   # M3 pads this far from the edges, as on the 6502 board
 HOLE_GAPS = (1, 3)                  # middle holes on the SLOT 1/2 and SLOT 3/4 half-pitch lines
 FEED = 0.5                          # decoupler feeds, as on the 6502 board
+LED_DROP = 2.0                      # clearance for C1's 10 mm body
 
 mm, MM = pcb.FromMM, pcb.ToMM
 KEEP = []                            # removed items must outlive the board (SWIG, see AGENTS.md)
@@ -63,7 +64,7 @@ KEEP = []                            # removed items must outlive the board (SWI
 
 def footprint(fpid):
     lib, name = fpid.split(':')
-    path = ROOT.parent / 'tools/capacitors/SolderDemonCaps.pretty' if lib == 'SolderDemonCaps' else ROOT / f'{NAME}.pretty' if lib == NAME else STOCK / f'{lib}.pretty'
+    path = ROOT.parent / 'tools/capacitors/SolderDemonCaps.pretty' if lib == 'SolderDemonCaps' else ROOT / 'design' / f'{NAME}.pretty' if lib == NAME else STOCK / f'{lib}.pretty'
     f = pcb.FootprintLoad(str(path), name)
     f.SetFPID(pcb.LIB_ID(lib, name))
     KEEP.append(f)
@@ -73,7 +74,7 @@ def footprint(fpid):
 def netlist():
     xml = ROOT / 'netlist.xml'
     subprocess.run([CLI, 'sch', 'export', 'netlist', '--format', 'kicadxml', '-o', str(xml),
-                    str(ROOT / f'{NAME}.kicad_sch')], check=True, capture_output=True)
+                    str(ROOT / 'design' / f'{NAME}.kicad_sch')], check=True, capture_output=True)
     r = ET.parse(xml).getroot()
     xml.unlink()
     parts = {c.get('ref'): (c.findtext('value'), c.findtext('footprint')) for c in r.find('components')}
@@ -216,7 +217,7 @@ def main():
     for sref, ref in REF.items():
         s = src.FindFootprintByReference(sref)
         x, y = srel(s.GetPosition())
-        add(ref, (x + dx, y), s.GetOrientationDegrees())
+        add(ref, (x + dx, y + (LED_DROP if ref == 'LED1' else 0)), s.GetOrientationDegrees())
 
     pin = lambda ref, n: rel(next(p for p in b.FindFootprintByReference(ref).Pads() if p.GetNumber() == n).GetPosition())
     centre = [(pin(f'BUS{i}', '1')[0] + pin(f'BUS{i}', '2')[0]) / 2 for i in range(1, 6)]
@@ -256,13 +257,29 @@ def main():
             t.SetNet(b.FindNet(net))
             b.Add(t)
 
-    # 5. The 6502 corner's tracks and vias, moved with it.
+    # 5. The 6502 corner's tracks and vias, moved with it. Move the ends attached
+    # to LED1 with its pads; C1's positive pad remains at the original location.
+    usb_ground = [srel(p.GetPosition()) for p in src.FindFootprintByReference('J3').Pads() if p.GetNetname() == 'GND']
+    led_pads = [srel(p.GetPosition()) for p in src.FindFootprintByReference('LED1').Pads()]
+    def move_led_endpoint(x, y):
+        if any(abs(x - px) < 0.001 and abs(y - py) < 0.001 for px, py in led_pads):
+            return x, y + LED_DROP
+        return x, y
+
     for s in src.GetTracks():
         n = str(s.GetNetname())
         (sx1, sy1), (sx2, sy2) = srel(s.GetStart()), srel(s.GetEnd())
         if min(sx1, sx2) < CORNER_X:
             continue
+        if n in {'VBUS', 'Net-(J3-CC1)', 'Net-(J3-CC2)'}:
+            continue
+        if n == 'GND' and any(abs(x - px) < 0.001 and abs(y - py) < 0.001
+                              for x, y in ((sx1, sy1), (sx2, sy2)) for px, py in usb_ground):
+            continue  # USB connector ground stubs
         n = NET.get(n, n)
+        if s.Type() != pcb.PCB_VIA_T:
+            sx1, sy1 = move_led_endpoint(sx1, sy1)
+            sx2, sy2 = move_led_endpoint(sx2, sy2)
         if s.Type() == pcb.PCB_VIA_T:
             v = pcb.PCB_VIA(b)
             v.SetPosition(at(sx1 + dx, sy1)); v.SetWidth(s.GetWidth(pcb.F_Cu)); v.SetDrill(s.GetDrill())
