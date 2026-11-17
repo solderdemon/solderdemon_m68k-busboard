@@ -64,7 +64,7 @@ KEEP = []                            # removed items must outlive the board (SWI
 
 def footprint(fpid):
     lib, name = fpid.split(':')
-    path = ROOT.parent / 'tools/capacitors/SolderDemonCaps.pretty' if lib == 'SolderDemonCaps' else ROOT / 'design' / f'{NAME}.pretty' if lib == NAME else STOCK / f'{lib}.pretty'
+    path = ROOT / 'design' / 'SolderDemonCaps.pretty' if lib == 'SolderDemonCaps' else ROOT / 'design' / f'{NAME}.pretty' if lib == NAME else STOCK / f'{lib}.pretty'
     f = pcb.FootprintLoad(str(path), name)
     f.SetFPID(pcb.LIB_ID(lib, name))
     KEEP.append(f)

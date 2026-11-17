@@ -1,6 +1,6 @@
 (fp_lib_table
   (version 7)
   (lib (name "solderdemon_m68k-busboard")(type "KiCad")(uri "${KIPRJMOD}/solderdemon_m68k-busboard.pretty")(options "")(descr "SolderDemon bus board footprints"))
-  (lib (name "SolderDemonCaps")(type "KiCad")(uri "${KIPRJMOD}/../../tools/capacitors/SolderDemonCaps.pretty")(options "")(descr "Shared radial ceramic capacitors"))
-  (lib (name "SolderDemonBrand")(type "KiCad")(uri "${KIPRJMOD}/../../tools/brand/SolderDemon.pretty")(options "")(descr "SolderDemon logo, tools/brand"))
+  (lib (name "SolderDemonCaps")(type "KiCad")(uri "${KIPRJMOD}/SolderDemonCaps.pretty")(options "")(descr "Shared radial ceramic capacitors"))
+  (lib (name "SolderDemonBrand")(type "KiCad")(uri "${KIPRJMOD}/SolderDemonBrand.pretty")(options "")(descr "SolderDemon logo, tools/brand"))
 )
