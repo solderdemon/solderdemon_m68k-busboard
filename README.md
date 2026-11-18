@@ -1,5 +1,7 @@
 # SolderDemon m68k Busboard
 
+## Overview
+
 A SolderDemon m68k backplane with one host slot, four expansion slots, and selectable 5 V DC power inputs.
 
 The expansion slots support [rosco_m68k](https://github.com/rosco-m68k/rosco_m68k) cards.
@@ -10,8 +12,8 @@ The expansion slots support [rosco_m68k](https://github.com/rosco-m68k/rosco_m68
 
 - [KiCad project](design/solderdemon_m68k-busboard.kicad_pro)
 - [Schematic (PDF)](manufacturing/solderdemon_m68k-busboard-schematic.pdf)
-- [Gerbers and drill files](manufacturing/solderdemon_m68k-busboard-gerbers.zip)
 - [Connecting the host and cards](#connecting-the-host-and-the-cards)
+- [Gerbers and drill files](manufacturing/solderdemon_m68k-busboard-gerbers.zip)
 
 ## Board views
 
@@ -19,7 +21,9 @@ The expansion slots support [rosco_m68k](https://github.com/rosco-m68k/rosco_m68
 |:---:|:---:|
 | ![Top view](solderdemon_m68k-busboard-top.png) | ![Bottom view](solderdemon_m68k-busboard-bottom.png) |
 
-## Features
+## Hardware
+
+### Features
 
 - **Slot Architecture:** 5 identical slots (`BUS1`–`BUS5`), 2×32 vertical pin headers (2.54 mm / 0.1" pitch), 29.21 mm slot pitch; every slot carries the full 64-pin main bus; pin 1 of each slot is marked with a silkscreen triangle. `BUS1` (labelled `HOST`; the others `SLOT 1`–`SLOT 4`) is the host slot: the 20 mm strip to its left is kept free of tall parts so the host's components can face outwards
 - **Power Inputs:** 5V DC only, from one of, down the right-hand edge:
@@ -33,7 +37,7 @@ The expansion slots support [rosco_m68k](https://github.com/rosco-m68k/rosco_m68
 - **Form Factor:** 185 × 99 mm 2-layer PCB, through-hole components; power connectors and switch on the right-hand end, away from the host
 - **Mounting:** 8× M3 mounting holes (3.2 mm) with grounded pads, 5.08 mm in from the edges as on the 6502 busboard; the four middle holes sit on the same half-pitch lines as the capacitors, above `C3` and `C5` and below the slots
 
-## Pinout
+### Pinout
 
 All five slots are wired 1:1 to the main bus:
 
@@ -72,14 +76,14 @@ All five slots are wired 1:1 to the main bus:
 | **61** | **D0** | Data bus bit 0 | **62** | **D3** | Data bus bit 3 |
 | **63** | **D1** | Data bus bit 1 | **64** | **D2** | Data bus bit 2 |
 
-### Connecting the host and the cards
+#### Connecting the host and the cards
 
 - **Host board in `BUS1`.** Fit a **right-angle 2×32 socket on the bottom side** of the `solderdemon_m68k` board in the J3 holes, body overhanging the left edge, instead of the vertical header. The host then stands in `BUS1` with its component side facing outwards (left), all its connectors reachable, pins matched 1:1. The socket must be on the bottom side: on the top side the pin order along the row comes out reversed. The host sits about 2 mm lower than the cards because J3 is 5.45 mm from the board edge; its tallest parts reach roughly the left edge of this board.
 - **Host on a cable.** With the stock vertical header on J3 the host can instead hang off a 64-way IDC ribbon cable with a socket at both ends, plugged into any slot. The cable is wired 1:1; keep it short (under about 20 cm) because the bus is unbuffered and has a single GND line. Neither header is keyed: match the cable's pin 1 (red stripe) to the triangle on the slot and to pin 1 on J3, otherwise the bus board's own 5V lands on the CPU data lines.
 - **Cards.** Expansion cards use a right-angle 2×32 socket on the component side of their right edge, pin 1 at the bottom. Plugged in, every card stands with its components facing left, towards the host slot, so cards look at the back of their left-hand neighbour and the `BUS5` card turns its back to the power section. A card inserted the other way round gets `VCC` on a data line, so check the triangle before powering up.
 - **One power source.** With `JP1` fitted, the host's 5V rail is the bus `VCC`: power the system from this board only. To power the host from its own `J5` (for example during bring-up), take `JP1` off — the cards still run from this board, the host from its own supply.
 
-### Power Interfaces & Control
+#### Power Interfaces & Control
 
 | Designator | Label | Type / Footprint | Description |
 |:---|:---|:---|:---|
@@ -95,7 +99,17 @@ All five slots are wired 1:1 to the main bus:
 
 > **One input at a time, by design.** `JP2` connects exactly one input to the switch; the others stay open even when plugged in.
 
-## Bill of Materials (BOM)
+## Using the board
+
+See [Connecting the host and the cards](#connecting-the-host-and-the-cards) for connector orientation and the power link.
+
+## Build and verification
+
+### Verification
+
+See [Design files](#design-files) for fabrication files and reports.
+
+### Bill of Materials (BOM)
 
 | Reference | Value | Package / Footprint | Notes |
 |:---|:---|:---|:---|
@@ -115,7 +129,7 @@ All five slots are wired 1:1 to the main bus:
 
 Machine-readable BOM: [solderdemon_m68k-busboard-bom.csv](design/solderdemon_m68k-busboard-bom.csv).
 
-## Design files
+### Design files
 
 - **KiCad Project (KiCad 10):** `design/solderdemon_m68k-busboard.kicad_pro`, `design/solderdemon_m68k-busboard.kicad_sch`, `design/solderdemon_m68k-busboard.kicad_pcb`
 - **How r1 is made:** `tools/build_sch.py` generates the schematic and BOM; `tools/standard_pcb.py` rebuilds from the routed bus at git `3a0c432`, brings over the 6502 power circuit and applies the revised placement and routing; `../tools/brand/apply_identity.py solderdemon_m68k-busboard` draws the shared labels and identity
@@ -140,7 +154,7 @@ This passive busboard has no firmware or software; the code directories document
 Design files and documentation are generated by scripts in `tools/`; change the sources and regenerate. Keep `.kicad_pro` as the source of DRC rules.
 <!-- /repository-layout -->
 
-## Licence
+## Licences and attribution
 
 Copyright © 2026 SolderDemon.
 
